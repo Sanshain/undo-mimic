@@ -1,9 +1,7 @@
 ## undo-mimic
 Emulating undo and redo actions for textarea and input page elements
 
-### Usage
-
-Simple usage:
+### Simple usage
 
 ```
 import { storeMultiactions, storeAction, undo } from "./undoManager/initialize";
@@ -13,25 +11,25 @@ var editor = null;
 function initialize(){
   main(editor = document.querySelector('textarea'));
   editor.onkeydown = () => {
-    if (event.ctrlKey && event.code === 'KeyZ') undo(event);
+    	if (event.ctrlKey && event.code === 'KeyZ') undo(event);
   }
   document.querySelector('button').onclick = () => {
       
-		storeAction(event, () => editor.value += '123');
-    editor.selectionStart = editor.selectionEnd = editor.value.length - 1;
-    editor.focus();
+	storeAction(event, () => editor.value += '123');
+    	editor.selectionStart = editor.selectionEnd = editor.value.length - 1;
+    	editor.focus();
   }
   document.querySelector('button_2').onclick = () => {
     
-		storeMultiactions(event, () => editor.value = '123');
-    editor.selectionStart = editor.selectionEnd = editor.value.length - 1;
-    editor.focus();
+	storeMultiactions(event, () => editor.value = '123');
+    	editor.selectionStart = editor.selectionEnd = editor.value.length - 1;
+    	editor.focus();
   }  
 }
 
 ```
 
-Usage with [ta-hotkeys](https://github.com/Sanshain/ta-hotkeys):
+### Usage with [ta-hotkeys](https://github.com/Sanshain/ta-hotkeys):
 
 ```
   document.querySelector('button').onclick = () => {
