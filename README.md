@@ -35,18 +35,18 @@ Usage with [ta-hotkeys](https://github.com/Sanshain/ta-hotkeys):
 
 ```
   document.querySelector('button').onclick = () => {
-    let caret = editor.selectionStart;
-		let preformat = storeAction(event, () => {
-			var preformat = formatAction(line, event); // some actions
-			editor.value = preLine + preformat.line + postLine;
-			return preformat;
-		}, {
-			startLine: startLine, endLine: endLine
-		})
+    	let caret = editor.selectionStart;
+	let preformat = storeAction(event, () => {
+		var preformat = formatAction(line, event); // some actions
+		editor.value = preLine + preformat.line + postLine;
+		return preformat;
+	}, {
+		startLine: startLine, endLine: endLine
+	})
 
-		if (preformat.eventAbort) event.preventDefault();
-		// selection turns back:
-		editor.selectionStart = editor.selectionEnd = caret + preformat.offset * (preformat.undo ? -1 : 1);  
+	if (preformat.eventAbort) event.preventDefault();
+	// selection turns back:
+	editor.selectionStart = editor.selectionEnd = caret + preformat.offset * (preformat.undo ? -1 : 1);  
   }
 ```
 
