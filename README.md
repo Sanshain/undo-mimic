@@ -9,17 +9,17 @@ import main from './undoManager/initialize';
 
 var editor = null;
 function initialize(){
-  main(editor = document.querySelector('textarea'));
-  editor.onkeydown = () => {
+  main(editor = document.querySelector('textarea'));					// initialize editor for undo/redo emulator applying
+  editor.onkeydown = () => {								// on ctrl+z keydown event subscribe
     	if (event.ctrlKey && event.code === 'KeyZ') undo(event);
   }
-  document.querySelector('button').onclick = () => {
+  document.querySelector('button').onclick = () => {					// first example stored by undo-mimic action 
       
 	storeAction(event, () => editor.value += '123');
     	editor.selectionStart = editor.selectionEnd = editor.value.length - 1;
     	editor.focus();
   }
-  document.querySelector('button_2').onclick = () => {
+  document.querySelector('button_2').onclick = () => {					// second example stored by undo-mimic action 
     
 	storeMultiactions(event, () => editor.value = '123');
     	editor.selectionStart = editor.selectionEnd = editor.value.length - 1;
@@ -33,8 +33,8 @@ function initialize(){
 
 ```js
   document.querySelector('button').onclick = () => {
-    	let caret = editor.selectionStart;
-	let preformat = storeAction(event, () => {
+    	let caret = editor.selectionStart;						// remember caret position
+	let preformat = storeAction(event, () => {					// rememeber action by undi-mimic
 		var preformat = formatAction(line, event); // some actions
 		editor.value = preLine + preformat.line + postLine;
 		return preformat;
