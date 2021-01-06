@@ -3,7 +3,7 @@ Emulating undo and redo actions for textarea and input page elements
 
 ### Simple usage
 
-```
+```js
 import { storeMultiactions, storeAction, undo } from "./undoManager/initialize";
 import main from './undoManager/initialize';
 
@@ -31,7 +31,7 @@ function initialize(){
 
 ### Usage with [ta-hotkeys](https://github.com/Sanshain/ta-hotkeys):
 
-```
+```js
   document.querySelector('button').onclick = () => {
     	let caret = editor.selectionStart;
 	let preformat = storeAction(event, () => {
