@@ -7,8 +7,8 @@ var editor = document.getElementById('editor') || document.querySelector('textar
 	undoStorage = [],
 	redoStorage = [];
 
-export default function main(target) {
-	if (!debug) redoLog = (() => { });
+export default function main(target, debug) {
+	if (!debug) var redoLog = (() => { });
 	editor = target;
 	return editor;
 }
@@ -84,9 +84,9 @@ editor.addEventListener('input', event => {			// event.inputType && event.data
 	if (event.inputType != 'historyUndo') {
 
 		redoStorage.splice(0, redoStorage.length);
-		redoLog();
+		redoLog(storage);
 	}
-	else redoLog(undoStorage);
+	else redoLog(storage);
 });
 
 
@@ -233,11 +233,11 @@ const InputActionType =
 	deleteContentForward: 'deleteContentForward'		// get selection (keydown)
 }
 
-
+let storage = { undo: undoStorage, redo: redoStorage };
 const redo = (e) => {
 	let redoState = redoStorage.pop();
 	if (redoState) {
-		undoStorage.push(redoState), redoLog();
+		undoStorage.push(redoState), redoLog(storage);
 
 		actionApply(redoState, 'redo');
 		if (e.preventDefault) e.preventDefault();
@@ -249,7 +249,7 @@ export const undo = (e) => {
 
 	let undoState = undoStorage.pop();
 	if (undoState) {
-		redoStorage.push(undoState), redoLog();
+		redoStorage.push(undoState), redoLog(storage);
 
 		actionApply(undoState, '');
 		if (e.preventDefault) e.preventDefault();

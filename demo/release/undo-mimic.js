@@ -2,15 +2,28 @@
 	'use strict';
 
 	// @ts-nocheck
+	function redoLog(storage) {
 
-	// import { redoLog } from "./logs";
-	var redoLog = (() => { });
+		console.clear(); for (let state of storage.undo) console.log(state);
+
+		document.querySelector('.log__redo').innerHTML = ''; for (let state of storage.redo) {
+
+			let logItem = document.createElement('p');
+			logItem.innerText = JSON.stringify(state);
+			document.querySelector('.log__redo').appendChild(logItem);
+
+		}
+		
+	}
+
+	// @ts-nocheck
+	// var redoLog = (() => { });
 
 	var editor = document.getElementById('editor') || document.querySelector('textarea'),
 		undoStorage = [],
 		redoStorage = [];
 
-	function main(target) {
+	function main(target, debug) {
 		editor = target;
 		return editor;
 	}
@@ -86,7 +99,9 @@
 		if (event.inputType != 'historyUndo') {
 
 			redoStorage.splice(0, redoStorage.length);
+			redoLog(storage);
 		}
+		else redoLog(storage);
 	});
 
 
@@ -233,11 +248,11 @@
 		deleteContentForward: 'deleteContentForward'		// get selection (keydown)
 	};
 
-
+	let storage = { undo: undoStorage, redo: redoStorage };
 	const redo = (e) => {
 		let redoState = redoStorage.pop();
 		if (redoState) {
-			undoStorage.push(redoState), redoLog();
+			undoStorage.push(redoState), redoLog(storage);
 
 			actionApply(redoState, 'redo');
 			if (e.preventDefault) e.preventDefault();
@@ -249,7 +264,7 @@
 
 		let undoState = undoStorage.pop();
 		if (undoState) {
-			redoStorage.push(undoState), redoLog();
+			redoStorage.push(undoState), redoLog(storage);
 
 			actionApply(undoState, '');
 			if (e.preventDefault) e.preventDefault();
