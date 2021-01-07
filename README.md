@@ -1,7 +1,7 @@
 # undo-mimic
 Emulating undo and redo actions for textarea and input page elements
 
-### Installation
+## Installation
 
 ```
 npm i Sanshain/undo-mimic
@@ -13,7 +13,7 @@ or use like cdn:
 <script src="https://sanshain.github.io/undo-mimic/demo/release/undo-mimic.js"></script>
 ```
 
-### Simple usage
+## Simple usage
 
 Usage as module via npm
 
@@ -78,7 +78,7 @@ Look full example inside "Demo" folder, [github page](https://sanshain.github.io
   }
 ```
 
-### API:
+## API:
 
 - `main` - initialize editor element
 - `undo` - undo action
