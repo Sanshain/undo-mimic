@@ -9,6 +9,7 @@ var editor = document.getElementById('editor') || document.querySelector('textar
 
 export default function main(target) {
 	editor = target;
+	return editor;
 }
 
 editor.addEventListener('keydown', function (event) {
@@ -190,15 +191,15 @@ export const storeMultiactions = function (event, callback, onfinish) {
  * @param {startLine: Number, endLine: Number} kwargs - позиция начала строки и конца строки 
  */
 export const storeAction = function (event, callback, kwargs) {
-	if (kwargs){
-		event.target.selectionStart = kwargs.startLine + 1;
-		event.target.selectionEnd = kwargs.endLine;		
-	}
-	// else throw new Error('need kwargs with positions of start and end of line');
-	else{
-		event.target.selectionStart = editor.value.lastIndexOf('\n', editor.selectionStart-1)+1;
-		event.target.selectionEnd = editor.value.indexOf('\n', editor.selectionEnd);		
-	}
+
+	// if (!kwargs) kwargs = {
+	// 	// todo default behavior (now is draft!!)
+	// 	startLine: editor.value.lastIndexOf('\n', editor.selectionStart-1),
+	// 	endLine: Math.max(editor.value.indexOf('\n', editor.selectionEnd), editor.value.length)
+	// }
+
+	event.target.selectionStart = kwargs.startLine + 1;
+	event.target.selectionEnd = kwargs.endLine;	
 
 	event.target.dispatchEvent(new KeyboardEvent('keydown', {}));
 	let preformat = callback(event);
