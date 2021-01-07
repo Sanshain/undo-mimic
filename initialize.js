@@ -165,7 +165,7 @@ function actionApply(doingState, doingType) {
 
 
 
-export const storeMultiactions = function (event, callback, onfinish) {
+export const storeMultiactions = function (event, callback, onfinish, kwargs) {
 
 	event.target.dispatchEvent(new KeyboardEvent('keydown'));
 
@@ -173,8 +173,11 @@ export const storeMultiactions = function (event, callback, onfinish) {
 
 	let transfer = new DataTransfer();							// так для IE не будет работать
 	transfer.setData('text/plain',
-		event.target.value.slice(event.target.selectionStart, event.target.selectionEnd  // or line.slice(1)
-	));
+		event.target.value.slice(
+			(kwargs || event.target).selectionStart, 
+			event.target.selectionEnd  // or line.slice(1)
+		)
+	);
 	let clipboardEvent = new ClipboardEvent('paste', { clipboardData: transfer })
 
 	event.target.dispatchEvent(clipboardEvent);

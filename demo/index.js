@@ -30,8 +30,12 @@ function initialize() {
     editor.selectionStart = editor.selectionEnd = editor.value.length, editor.focus();
   }  
 
+  return editor;
+
 }
 
-window.addEventListener('load', initialize);
-document.getElementById('undo_btn').onclick = () => {undo({shiftKey: false}); editor.focus();}
-document.getElementById('redo_btn').onclick = () => { undo({shiftKey: true}); editor.focus();}
+window.addEventListener('load', () => { const editor = initialize();
+
+  document.getElementById('undo_btn').onclick = () => {undo({shiftKey: false}); editor.focus();}
+  document.getElementById('redo_btn').onclick = () => { undo({shiftKey: true}); editor.focus();}
+});

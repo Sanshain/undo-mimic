@@ -6,16 +6,16 @@
 	// import { redoLog } from "./logs";
 	var redoLog = (() => { });
 
-	var editor$1 = document.getElementById('editor') || document.querySelector('textarea'),
+	var editor = document.getElementById('editor') || document.querySelector('textarea'),
 		undoStorage = [],
 		redoStorage = [];
 
 	function main(target) {
-		editor$1 = target;
-		return editor$1;
+		editor = target;
+		return editor;
 	}
 
-	editor$1.addEventListener('keydown', function (event) {
+	editor.addEventListener('keydown', function (event) {
 
 		// console.log(event)
 
@@ -25,27 +25,27 @@
 		};
 
 		if (input.selection_length) {
-			input.lostData = editor$1.value.slice(
+			input.lostData = editor.value.slice(
 				input.selection.start,
 				input.selection.end
 			);
 		}
 		else {
-			input.lostData = editor$1.value.slice(
+			input.lostData = editor.value.slice(
 				input.selection.start - 1,
 				input.selection.end + 1
 			);
 		}
 
 	});
-	editor$1.addEventListener('paste', e => {
+	editor.addEventListener('paste', e => {
 
 		input.data = (window.clipboardData || e.clipboardData).getData('text/plain');
 		input.data = input.data.replace(/\r\n/g, '\n');
 		// если вызвано из контекстного меню, то выделение надо ловить в контекстном меню
 
 	});
-	editor$1.addEventListener('input', event => {			// event.inputType && event.data	
+	editor.addEventListener('input', event => {			// event.inputType && event.data	
 
 		// console.log(event)
 
@@ -116,23 +116,23 @@
 		switch (doingState.type) {
 			case 'insertFromPaste':
 
-				editor$1.value = (
-					editor$1.value.substring(0, doingState.selection.start) + lostData +
-					editor$1.value.substring(doingState.selection.start + data.length)
+				editor.value = (
+					editor.value.substring(0, doingState.selection.start) + lostData +
+					editor.value.substring(doingState.selection.start + data.length)
 				);
-				editor$1.setSelectionRange(doingState.selection.start, doingState.selection.end + lostData.length);
-				if (doingState.caret) editor$1.selectionStart = editor$1.selectionEnd;
+				editor.setSelectionRange(doingState.selection.start, doingState.selection.end + lostData.length);
+				if (doingState.caret) editor.selectionStart = editor.selectionEnd;
 
 				break;
 			case 'insertText':
 
 				if (!doingState.selection_length)
-					editor$1.value = (
-						editor$1.value.substring(0, doingState.selection.start) + (lostData || '') +
-						editor$1.value.substring(doingState.selection.start + (data || '').length)  //  + !doingType
+					editor.value = (
+						editor.value.substring(0, doingState.selection.start) + (lostData || '') +
+						editor.value.substring(doingState.selection.start + (data || '').length)  //  + !doingType
 					);
 
-				editor$1.setSelectionRange(
+				editor.setSelectionRange(
 					doingState.selection.start + lostData.length,
 					doingState.selection.end + lostData.length		  // + lostData.length * !!doingType
 				);
@@ -140,19 +140,19 @@
 			case 'deleteByCut': // either cut approach
 			case 'deleteContentForward': // del on sel.len == 0
 			case 'deleteContentBackward': // all other approaches to del
-				editor$1.value = (
-					editor$1.value.substring(0, doingState.selection.start) + (lostData || '') +
-					editor$1.value.substring(doingState.selection.end + !!doingType * (data || '').length)
+				editor.value = (
+					editor.value.substring(0, doingState.selection.start) + (lostData || '') +
+					editor.value.substring(doingState.selection.end + !!doingType * (data || '').length)
 				);
 
-				editor$1.selectionStart = editor$1.selectionEnd = (
+				editor.selectionStart = editor.selectionEnd = (
 					doingState.selection.start +
 					(
 						doingState.type == InputActionType.deleteContentBackward && (lostData || '').length == 1
 					)
 				);
 
-				if ((lostData || '').length > 1) editor$1.selectionEnd = doingState.selection.start + lostData.length;
+				if ((lostData || '').length > 1) editor.selectionEnd = doingState.selection.start + lostData.length;
 
 				break;
 		}
@@ -237,7 +237,7 @@
 			undoStorage.push(redoState), redoLog();
 
 			actionApply(redoState, 'redo');
-			e.preventDefault();
+			if (e.preventDefault) e.preventDefault();
 		}
 
 	};
@@ -249,7 +249,8 @@
 			redoStorage.push(undoState), redoLog();
 
 			actionApply(undoState, '');
-			e.preventDefault();
+			if (e.preventDefault) e.preventDefault();
+			
 		}
 	};
 
@@ -282,11 +283,15 @@
 	    editor.selectionStart = editor.selectionEnd = editor.value.length, editor.focus();
 	  };  
 
+	  return editor;
+
 	}
 
-	window.addEventListener('load', initialize);
-	document.getElementById('undo_btn').onclick = () => {undo({shiftKey: false}); editor.focus();};
-	document.getElementById('redo_btn').onclick = () => { undo({shiftKey: true}); editor.focus();};
+	window.addEventListener('load', () => { const editor = initialize();
+
+	  document.getElementById('undo_btn').onclick = () => {undo({shiftKey: false}); editor.focus();};
+	  document.getElementById('redo_btn').onclick = () => { undo({shiftKey: true}); editor.focus();};
+	});
 
 }());
 //# sourceMappingURL=undo-mimic.js.map
