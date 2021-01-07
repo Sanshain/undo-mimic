@@ -1,7 +1,21 @@
 # undo-mimic
 Emulating undo and redo actions for textarea and input page elements
 
+### Installation
+
+```
+npm i Sanshain/undo-mimic
+```
+
+or use like cdn:
+
+```html
+<script src="https://sanshain.github.io/undo-mimic/demo/release/undo-mimic.js"></script>
+```
+
 ### Simple usage
+
+Usage as module via npm
 
 ```js
 import { storeMultiactions, storeAction, undo } from "undo-mimic/initialize";
@@ -71,8 +85,3 @@ Look full example inside "Demo" folder, [github page](https://sanshain.github.io
 - `storeAction` - store one line action inside callback
 - `storeMultiactions` - store action inside callback for actions under selected multiline text
 
-### Installation
-
-```
-npm i Sanshain/undo-mimic
-```
