@@ -1,5 +1,5 @@
 // @ts-nocheck
-function redoLog(storage) {
+export function redoLog(storage) {
 
 	if (!storage) {
 

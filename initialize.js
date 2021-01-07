@@ -1,7 +1,7 @@
 // @ts-nocheck
 
+// import { redoLog } from "./logs";
 var redoLog = (() => { });
-// redoLog = redoLog || (() => { });
 
 var editor = document.getElementById('editor') || document.querySelector('textarea'),
 	undoStorage = [],
@@ -183,11 +183,24 @@ export const storeMultiactions = function (event, callback, onfinish) {
 	}));
 	if (onfinish && postOptions && postOptions.backoffset !== undefined) onfinish(postOptions);
 }
+/**
+ * 
+ * @param {*} event 
+ * @param {Function} callback 
+ * @param {startLine: Number, endLine: Number} kwargs - позиция начала строки и конца строки 
+ */
 export const storeAction = function (event, callback, kwargs) {
-	event.target.selectionStart = kwargs.startLine + 1;
-	event.target.selectionEnd = kwargs.endLine;
-	event.target.dispatchEvent(new KeyboardEvent('keydown', {}));
+	if (kwargs){
+		event.target.selectionStart = kwargs.startLine + 1;
+		event.target.selectionEnd = kwargs.endLine;		
+	}
+	// else throw new Error('need kwargs with positions of start and end of line');
+	else{
+		event.target.selectionStart = editor.value.lastIndexOf('\n', editor.selectionStart-1)+1;
+		event.target.selectionEnd = editor.value.indexOf('\n', editor.selectionEnd);		
+	}
 
+	event.target.dispatchEvent(new KeyboardEvent('keydown', {}));
 	let preformat = callback(event);
 
 	let transfer = new DataTransfer(); 					// так для IE не будет работать
