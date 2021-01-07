@@ -1,1 +1,287 @@
-var actionhandler=function(t){"use strict";var e=document.getElementById("editor")||document.querySelector("textarea"),n=[],a=[];e.addEventListener("keydown",(function(t){s.selection={start:t.target.selectionStart,end:t.target.selectionEnd},s.selection_length?s.lostData=e.value.slice(s.selection.start,s.selection.end):s.lostData=e.value.slice(s.selection.start-1,s.selection.end+1)})),e.addEventListener("paste",(t=>{s.data=(window.clipboardData||t.clipboardData).getData("text/plain"),s.data=s.data.replace(/\r\n/g,"\n")})),e.addEventListener("input",(t=>{if("historyUndo"==t.inputType)return console.log(t.inputType),t.preventDefault(),!1;s.type=t.inputType,s.type!==r.insertFromPaste&&(s.data=t.data),s.selection_length?s.selection.end=s.selection.start:s.type==r.deleteContentBackward?(s.selection.start--,s.selection.end--,s.lostData=s.lostData[0]):s.type==r.deleteContentForward?s.lostData=s.lostData[1]:s.type!=r.insertText&&s.type!=r.insertFromPaste||(s.lostData=s.lostData.slice(1,-1)),n.push(Object.assign({},s)),"historyUndo"!=t.inputType&&a.splice(0,a.length)}));const s={type:null,data:null,lostData:null,get selection_length(){return this.selection.end-this.selection.start},selection:{start:null,end:null}};function l(t,n){if(Boolean(n)!==Boolean("redo"))var a=t.lostData,s=t.data;else s=t.lostData,a=t.data;switch(t.type){case"insertFromPaste":e.value=e.value.substring(0,t.selection.start)+a+e.value.substring(t.selection.start+s.length),e.setSelectionRange(t.selection.start,t.selection.end+a.length),t.caret&&(e.selectionStart=e.selectionEnd);break;case"insertText":t.selection_length||(e.value=e.value.substring(0,t.selection.start)+(a||"")+e.value.substring(t.selection.start+(s||"").length)),e.setSelectionRange(t.selection.start+a.length,t.selection.end+a.length);break;case"deleteByCut":case"deleteContentForward":case"deleteContentBackward":e.value=e.value.substring(0,t.selection.start)+(a||"")+e.value.substring(t.selection.end+!!n*(s||"").length),e.selectionStart=e.selectionEnd=t.selection.start+(t.type==r.deleteContentBackward&&1==(a||"").length),(a||"").length>1&&(e.selectionEnd=t.selection.start+a.length)}}const r={insertFromPaste:"insertFromPaste",deleteByCut:"deleteByCut",insertText:"insertText",deleteContentBackward:"deleteContentBackward",deleteContentForward:"deleteContentForward"};return t.default=function(t){e=t},t.input=s,t.storeAction=function(t,e,n){t.target.selectionStart=n.startLine+1,t.target.selectionEnd=n.endLine,t.target.dispatchEvent(new KeyboardEvent("keydown",{}));let a=e(t),l=new DataTransfer;l.setData("text/plain",t.target.value.substr(n.startLine+1,a.line.length));let r=new ClipboardEvent("paste",{clipboardData:l});return t.target.dispatchEvent(r),s.caret=123,t.target.dispatchEvent(new InputEvent("input",{data:null,inputType:"insertFromPaste"})),s.caret=void 0,a},t.storeMultiactions=function(t,e,n){t.target.dispatchEvent(new KeyboardEvent("keydown"));let a=e(t),s=new DataTransfer;s.setData("text/plain",t.target.value.slice(t.target.selectionStart,t.target.selectionEnd));let l=new ClipboardEvent("paste",{clipboardData:s});t.target.dispatchEvent(l),t.target.dispatchEvent(new InputEvent("input",{data:null,inputType:"insertFromPaste"})),n&&a&&void 0!==a.backoffset&&n(a)},t.undo=t=>{if(t.shiftKey)return(t=>{let e=a.pop();e&&(n.push(e),l(e,"redo"),t.preventDefault())})(t);let e=n.pop();e&&(a.push(e),l(e,""),t.preventDefault())},t}({});
+var actionhandler = (function (exports) {
+	'use strict';
+
+	// @ts-nocheck
+	function redoLog(storage) {
+
+		console.clear(); for (let state of storage.undo) console.log(state);
+
+		document.querySelector('.log__redo').innerHTML = ''; for (let state of storage.redo) {
+
+			let logItem = document.createElement('p');
+			logItem.innerText = JSON.stringify(state);
+			document.querySelector('.log__redo').appendChild(logItem);
+
+		}
+		
+	}
+
+	// @ts-nocheck
+	// var redoLog = (() => { });
+
+	var editor = document.getElementById('editor') || document.querySelector('textarea'),	
+		undoStorage = [],
+		redoStorage = [],
+		debug = false;
+
+	function main(target, dbg) {
+		debug = dbg;
+		editor = target;
+		return editor;
+	}
+
+	editor.addEventListener('keydown', function (event) {
+
+		// console.log(event)
+
+		input.selection = {
+			start: event.target.selectionStart,
+			end: event.target.selectionEnd,
+		};
+
+		if (input.selection_length) {
+			input.lostData = editor.value.slice(
+				input.selection.start,
+				input.selection.end
+			);
+		}
+		else {
+			input.lostData = editor.value.slice(
+				input.selection.start - 1,
+				input.selection.end + 1
+			);
+		}
+
+	});
+	editor.addEventListener('paste', e => {
+
+		input.data = (window.clipboardData || e.clipboardData).getData('text/plain');
+		input.data = input.data.replace(/\r\n/g, '\n');
+		// если вызвано из контекстного меню, то выделение надо ловить в контекстном меню
+
+	});
+	editor.addEventListener('input', event => {			// event.inputType && event.data	
+
+		// console.log(event)
+
+		if (event.inputType == 'historyUndo') {
+			console.log(event.inputType);
+			event.preventDefault();						// prevent need on keypress		
+			return false;
+		}
+
+
+		input.type = event.inputType;
+		if (input.type !== InputActionType.insertFromPaste) input.data = event.data;
+
+		if (!input.selection_length) {
+			if (input.type == InputActionType.deleteContentBackward) {
+				input.selection.start--;
+				input.selection.end--;
+				input.lostData = input.lostData[0];
+			}
+			else if (input.type == InputActionType.deleteContentForward) input.lostData = input.lostData[1];
+			else if (input.type == InputActionType.insertText || input.type == InputActionType.insertFromPaste) {
+
+				input.lostData = input.lostData.slice(1, -1);
+			}
+		}
+		else {
+
+			// input.lostData = input.lostData.slice(1, -1); // !
+			input.selection.end = input.selection.start; // + ((input.data || {}).length || 0);		
+
+		}
+
+		// action apply
+		// InputTypeAction[event.inputType](event);
+		undoStorage.push(Object.assign({}, input)); //  undoStorage.push(JSON.parse(JSON.stringify(input)))
+
+		// clear redo action storage
+		if (event.inputType != 'historyUndo') {
+
+			redoStorage.splice(0, redoStorage.length);
+			debug && redoLog(storage);
+		}
+		else debug && redoLog(storage);
+	});
+
+
+	const input = {
+
+		type: null,		// 'insertFromPaste' | 'deleteByCut' | 'insertText' | 'deleteContentBackward' | ...
+		data: null,		//  inserted char by 'insertText' type
+		lostData: null, //  data been selected on insert
+
+		get selection_length() { return this.selection.end - this.selection.start },
+		selection: {
+			start: null,
+			end: null
+		},
+	};
+
+
+
+	function actionApply(doingState, doingType) {
+
+		if (Boolean(doingType) !== Boolean('redo')) var lostData = doingState.lostData, data = doingState.data;
+		else {
+			var data = doingState.lostData,
+				lostData = doingState.data;
+		}
+
+		switch (doingState.type) {
+			case 'insertFromPaste':
+
+				editor.value = (
+					editor.value.substring(0, doingState.selection.start) + lostData +
+					editor.value.substring(doingState.selection.start + data.length)
+				);
+				editor.setSelectionRange(doingState.selection.start, doingState.selection.end + lostData.length);
+				if (doingState.caret) editor.selectionStart = editor.selectionEnd;
+
+				break;
+			case 'insertText':
+
+				if (!doingState.selection_length)
+					editor.value = (
+						editor.value.substring(0, doingState.selection.start) + (lostData || '') +
+						editor.value.substring(doingState.selection.start + (data || '').length)  //  + !doingType
+					);
+
+				editor.setSelectionRange(
+					doingState.selection.start + lostData.length,
+					doingState.selection.end + lostData.length		  // + lostData.length * !!doingType
+				);
+				break;
+			case 'deleteByCut': // either cut approach
+			case 'deleteContentForward': // del on sel.len == 0
+			case 'deleteContentBackward': // all other approaches to del
+				editor.value = (
+					editor.value.substring(0, doingState.selection.start) + (lostData || '') +
+					editor.value.substring(doingState.selection.end + !!doingType * (data || '').length)
+				);
+
+				editor.selectionStart = editor.selectionEnd = (
+					doingState.selection.start +
+					(
+						doingState.type == InputActionType.deleteContentBackward && (lostData || '').length == 1
+					)
+				);
+
+				if ((lostData || '').length > 1) editor.selectionEnd = doingState.selection.start + lostData.length;
+
+				break;
+		}
+	}
+
+
+
+
+
+
+
+
+
+	const storeMultiactions = function (event, callback, onfinish, kwargs) {
+
+		event.target.dispatchEvent(new KeyboardEvent('keydown'));
+
+		let postOptions = callback(event);		 							// multiActions[event.key](event);
+
+		let transfer = new DataTransfer();							// так для IE не будет работать
+		transfer.setData('text/plain',
+			event.target.value.slice(
+				(kwargs || event.target).selectionStart, 
+				event.target.selectionEnd  // or line.slice(1)
+			)
+		);
+		let clipboardEvent = new ClipboardEvent('paste', { clipboardData: transfer });
+
+		event.target.dispatchEvent(clipboardEvent);
+		event.target.dispatchEvent(new InputEvent('input', {			// так для IE не будет работать 
+			data: null,
+			inputType: 'insertFromPaste'
+		}));
+		if (onfinish && postOptions && postOptions.backoffset !== undefined) onfinish(postOptions);
+	};
+	/**
+	 * 
+	 * @param {*} event 
+	 * @param {Function} callback 
+	 * @param {startLine: Number, endLine: Number} kwargs - позиция начала строки и конца строки 
+	 */
+	const storeAction = function (event, callback, kwargs) {
+
+		// if (!kwargs) kwargs = {
+		// 	// todo default behavior (now is draft!!)
+		// 	startLine: editor.value.lastIndexOf('\n', editor.selectionStart-1),
+		// 	endLine: Math.max(editor.value.indexOf('\n', editor.selectionEnd), editor.value.length)
+		// }
+
+		event.target.selectionStart = kwargs.startLine + 1;
+		event.target.selectionEnd = kwargs.endLine;	
+
+		event.target.dispatchEvent(new KeyboardEvent('keydown', {}));
+		let preformat = callback(event);
+
+		let transfer = new DataTransfer(); 					// так для IE не будет работать
+		transfer.setData('text/plain', event.target.value.substr(kwargs.startLine + 1, preformat.line.length));
+		let clipboardEvent = new ClipboardEvent('paste', { clipboardData: transfer });
+
+		event.target.dispatchEvent(clipboardEvent);
+		input.caret = 123;
+		event.target.dispatchEvent(new InputEvent('input', {	// так для IE не будет работать 
+			data: null,
+			inputType: 'insertFromPaste'
+		}));
+		input.caret = undefined;
+
+		return preformat;
+	};
+
+
+	const InputActionType =
+	{
+		insertFromPaste: 'insertFromPaste',					// get selection (keydown) and clipboardData (paste)
+		deleteByCut: 'deleteByCut',							// get selection (keydown) 
+		insertText: 'insertText',							// get data (input) and selection (keydown)
+		deleteContentBackward: 'deleteContentBackward',		// get selection (keydown)
+		deleteContentForward: 'deleteContentForward'		// get selection (keydown)
+	};
+
+	let storage = { undo: undoStorage, redo: redoStorage };
+	const redo = (e) => {
+		let redoState = redoStorage.pop();
+		if (redoState) {
+			undoStorage.push(redoState), debug && redoLog(storage);
+
+			actionApply(redoState, 'redo');
+			if (e.preventDefault) e.preventDefault();
+		}
+
+	};
+	const undo = (e) => {
+		if (e.shiftKey) return redo(e);
+
+		let undoState = undoStorage.pop();
+		if (undoState) {
+			redoStorage.push(undoState), debug && redoLog(storage);
+
+			actionApply(undoState, '');
+			if (e.preventDefault) e.preventDefault();
+			
+		}
+	};
+
+	exports.default = main;
+	exports.input = input;
+	exports.storeAction = storeAction;
+	exports.storeMultiactions = storeMultiactions;
+	exports.undo = undo;
+
+	Object.defineProperty(exports, '__esModule', { value: true });
+
+	return exports;
+
+}({}));
