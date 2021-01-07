@@ -43,6 +43,8 @@ window.addEventListener('load', () => { const editor = initialize();
 });
 ```
 
+Look full example inside "Demo" folder, [github page](https://sanshain.github.io/undo-mimic/demo/). 
+
 ### Usage with [ta-hotkeys](https://github.com/Sanshain/ta-hotkeys):
 
 ```js
