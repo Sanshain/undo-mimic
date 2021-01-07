@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "file:///F:/Node/native/sample/index.html",
+            "url": "${workspaceFolder}/demo/index.html",
             "webRoot": "${workspaceFolder}"
         }
     ]

@@ -236,7 +236,7 @@ const redo = (e) => {
 		undoStorage.push(redoState), redoLog();
 
 		actionApply(redoState, 'redo');
-		e.preventDefault();
+		if (e.preventDefault) e.preventDefault();
 	}
 
 }
@@ -248,6 +248,7 @@ export const undo = (e) => {
 		redoStorage.push(undoState), redoLog();
 
 		actionApply(undoState, '');
-		e.preventDefault();
+		if (e.preventDefault) e.preventDefault();
+		
 	}
 }
