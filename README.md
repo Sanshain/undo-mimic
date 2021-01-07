@@ -9,11 +9,9 @@ import main from 'undo-mimic/initialize';
 
 
 function initialize() {
-  
-  // initialize editor for undo/redo emulator applying in debug mode (true option):
-  var editor = main(document.querySelector('textarea'), true);	
-  // on ctrl+z keydown event subscribe:
-  editor.onkeydown = (event) => { event.code === 'KeyZ' && event.ctrlKey && undo(event) };
+    
+  var editor = main(document.querySelector('textarea'), true);	  			  // initialize editor for undo/redo emulator applying in debug mode (true option)
+  editor.onkeydown = (event) => { event.code === 'KeyZ' && event.ctrlKey && undo(event) };// on ctrl+z keydown event subscribe
 
 
   document.querySelector('#add').onclick = (event) => {					  // first example stored by undo-mimic action 
@@ -41,7 +39,7 @@ function initialize() {
 window.addEventListener('load', () => { const editor = initialize();
 
   document.getElementById('undo_btn').onclick = () => {undo({shiftKey: false}); editor.focus();}
-  document.getElementById('redo_btn').onclick = () => { undo({shiftKey: true}); editor.focus();}
+  document.getElementById('redo_btn').onclick = () => {undo({shiftKey: true}); editor.focus();}
 });
 ```
 
