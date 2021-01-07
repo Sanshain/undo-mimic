@@ -7,7 +7,7 @@ Emulating undo and redo actions for textarea and input page elements
 npm i Sanshain/undo-mimic
 ```
 
-or use like cdn:
+or use via script link like cdn:
 
 ```html
 <script src="https://sanshain.github.io/undo-mimic/demo/release/undo-mimic.js"></script>
