@@ -3,12 +3,13 @@
 import { redoLog } from "./logs";
 // var redoLog = (() => { });
 
-var editor = document.getElementById('editor') || document.querySelector('textarea'),
+var editor = document.getElementById('editor') || document.querySelector('textarea'),	
 	undoStorage = [],
-	redoStorage = [];
+	redoStorage = [],
+	debug = false;
 
-export default function main(target, debug) {
-	if (!debug) var redoLog = (() => { });
+export default function main(target, dbg) {
+	debug = dbg;
 	editor = target;
 	return editor;
 }
@@ -84,9 +85,9 @@ editor.addEventListener('input', event => {			// event.inputType && event.data
 	if (event.inputType != 'historyUndo') {
 
 		redoStorage.splice(0, redoStorage.length);
-		redoLog(storage);
+		debug && redoLog(storage);
 	}
-	else redoLog(storage);
+	else debug && redoLog(storage);
 });
 
 
@@ -237,7 +238,7 @@ let storage = { undo: undoStorage, redo: redoStorage };
 const redo = (e) => {
 	let redoState = redoStorage.pop();
 	if (redoState) {
-		undoStorage.push(redoState), redoLog(storage);
+		undoStorage.push(redoState), debug && redoLog(storage);
 
 		actionApply(redoState, 'redo');
 		if (e.preventDefault) e.preventDefault();
@@ -249,7 +250,7 @@ export const undo = (e) => {
 
 	let undoState = undoStorage.pop();
 	if (undoState) {
-		redoStorage.push(undoState), redoLog(storage);
+		redoStorage.push(undoState), debug && redoLog(storage);
 
 		actionApply(undoState, '');
 		if (e.preventDefault) e.preventDefault();

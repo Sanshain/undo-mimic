@@ -19,11 +19,13 @@
 	// @ts-nocheck
 	// var redoLog = (() => { });
 
-	var editor = document.getElementById('editor') || document.querySelector('textarea'),
+	var editor = document.getElementById('editor') || document.querySelector('textarea'),	
 		undoStorage = [],
-		redoStorage = [];
+		redoStorage = [],
+		debug = false;
 
-	function main(target, debug) {
+	function main(target, dbg) {
+		debug = dbg;
 		editor = target;
 		return editor;
 	}
@@ -99,9 +101,9 @@
 		if (event.inputType != 'historyUndo') {
 
 			redoStorage.splice(0, redoStorage.length);
-			redoLog(storage);
+			debug && redoLog(storage);
 		}
-		else redoLog(storage);
+		else debug && redoLog(storage);
 	});
 
 
@@ -252,7 +254,7 @@
 	const redo = (e) => {
 		let redoState = redoStorage.pop();
 		if (redoState) {
-			undoStorage.push(redoState), redoLog(storage);
+			undoStorage.push(redoState), debug && redoLog(storage);
 
 			actionApply(redoState, 'redo');
 			if (e.preventDefault) e.preventDefault();
@@ -264,7 +266,7 @@
 
 		let undoState = undoStorage.pop();
 		if (undoState) {
-			redoStorage.push(undoState), redoLog(storage);
+			redoStorage.push(undoState), debug && redoLog(storage);
 
 			actionApply(undoState, '');
 			if (e.preventDefault) e.preventDefault();
@@ -277,8 +279,8 @@
 
 	function initialize() {
 	  
-	  // initialize editor for undo/redo emulator applying:
-	  var editor = main(document.querySelector('textarea'));	
+	  // initialize editor for undo/redo emulator applying in debug mode (true option):
+	  var editor = main(document.querySelector('textarea'), true);	
 	  // on ctrl+z keydown event subscribe:
 	  editor.onkeydown = (event) => { event.code === 'KeyZ' && event.ctrlKey && undo(event); };
 
