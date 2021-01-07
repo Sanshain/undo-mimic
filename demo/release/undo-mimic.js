@@ -2,34 +2,20 @@
 	'use strict';
 
 	// @ts-nocheck
-	function redoLog(storage) {
 
-		console.clear(); for (let state of storage.undo) console.log(state);
+	// import { redoLog } from "./logs";
+	var redoLog = (() => { });
 
-		document.querySelector('.log__redo').innerHTML = ''; for (let state of storage.redo) {
-
-			let logItem = document.createElement('p');
-			logItem.innerText = JSON.stringify(state);
-			document.querySelector('.log__redo').appendChild(logItem);
-
-		}
-		
-	}
-
-	// @ts-nocheck
-	// redoLog = redoLog || (() => { });
-	// var redoLog = (() => { });
-
-	var editor = document.getElementById('editor') || document.querySelector('textarea'),
+	var editor$1 = document.getElementById('editor') || document.querySelector('textarea'),
 		undoStorage = [],
 		redoStorage = [];
 
 	function main(target) {
-		editor = target;
-		return editor;
+		editor$1 = target;
+		return editor$1;
 	}
 
-	editor.addEventListener('keydown', function (event) {
+	editor$1.addEventListener('keydown', function (event) {
 
 		// console.log(event)
 
@@ -39,29 +25,28 @@
 		};
 
 		if (input.selection_length) {
-			input.lostData = editor.value.slice(
+			input.lostData = editor$1.value.slice(
 				input.selection.start,
 				input.selection.end
 			);
 		}
 		else {
-			input.lostData = editor.value.slice(
+			input.lostData = editor$1.value.slice(
 				input.selection.start - 1,
 				input.selection.end + 1
 			);
 		}
 
 	});
-	editor.addEventListener('paste', e => {
+	editor$1.addEventListener('paste', e => {
 
 		input.data = (window.clipboardData || e.clipboardData).getData('text/plain');
 		input.data = input.data.replace(/\r\n/g, '\n');
 		// если вызвано из контекстного меню, то выделение надо ловить в контекстном меню
 
 	});
-	editor.addEventListener('input', event => {			// event.inputType && event.data	
+	editor$1.addEventListener('input', event => {			// event.inputType && event.data	
 
-		
 		// console.log(event)
 
 		if (event.inputType == 'historyUndo') {
@@ -92,19 +77,16 @@
 			input.selection.end = input.selection.start; // + ((input.data || {}).length || 0);		
 
 		}
-		
+
 		// action apply
 		// InputTypeAction[event.inputType](event);
 		undoStorage.push(Object.assign({}, input)); //  undoStorage.push(JSON.parse(JSON.stringify(input)))
 
 		// clear redo action storage
 		if (event.inputType != 'historyUndo') {
-					
+
 			redoStorage.splice(0, redoStorage.length);
-			redoLog(storage);
 		}
-		else redoLog(storage);
-		
 	});
 
 
@@ -134,23 +116,23 @@
 		switch (doingState.type) {
 			case 'insertFromPaste':
 
-				editor.value = (
-					editor.value.substring(0, doingState.selection.start) + lostData +
-					editor.value.substring(doingState.selection.start + data.length)
+				editor$1.value = (
+					editor$1.value.substring(0, doingState.selection.start) + lostData +
+					editor$1.value.substring(doingState.selection.start + data.length)
 				);
-				editor.setSelectionRange(doingState.selection.start, doingState.selection.end + lostData.length);
-				if (doingState.caret) editor.selectionStart = editor.selectionEnd;
+				editor$1.setSelectionRange(doingState.selection.start, doingState.selection.end + lostData.length);
+				if (doingState.caret) editor$1.selectionStart = editor$1.selectionEnd;
 
 				break;
 			case 'insertText':
 
 				if (!doingState.selection_length)
-					editor.value = (
-						editor.value.substring(0, doingState.selection.start) + (lostData || '') +
-						editor.value.substring(doingState.selection.start + (data || '').length)  //  + !doingType
+					editor$1.value = (
+						editor$1.value.substring(0, doingState.selection.start) + (lostData || '') +
+						editor$1.value.substring(doingState.selection.start + (data || '').length)  //  + !doingType
 					);
 
-				editor.setSelectionRange(
+				editor$1.setSelectionRange(
 					doingState.selection.start + lostData.length,
 					doingState.selection.end + lostData.length		  // + lostData.length * !!doingType
 				);
@@ -158,19 +140,19 @@
 			case 'deleteByCut': // either cut approach
 			case 'deleteContentForward': // del on sel.len == 0
 			case 'deleteContentBackward': // all other approaches to del
-				editor.value = (
-					editor.value.substring(0, doingState.selection.start) + (lostData || '') +
-					editor.value.substring(doingState.selection.end + !!doingType * (data || '').length)
+				editor$1.value = (
+					editor$1.value.substring(0, doingState.selection.start) + (lostData || '') +
+					editor$1.value.substring(doingState.selection.end + !!doingType * (data || '').length)
 				);
 
-				editor.selectionStart = editor.selectionEnd = (
+				editor$1.selectionStart = editor$1.selectionEnd = (
 					doingState.selection.start +
 					(
 						doingState.type == InputActionType.deleteContentBackward && (lostData || '').length == 1
 					)
 				);
 
-				if ((lostData || '').length > 1) editor.selectionEnd = doingState.selection.start + lostData.length;
+				if ((lostData || '').length > 1) editor$1.selectionEnd = doingState.selection.start + lostData.length;
 
 				break;
 		}
@@ -184,7 +166,7 @@
 
 
 
-	const storeMultiactions = function (event, callback, onfinish, kwargs) {
+	const storeMultiactions = function (event, callback, onfinish) {
 
 		event.target.dispatchEvent(new KeyboardEvent('keydown'));
 
@@ -192,11 +174,8 @@
 
 		let transfer = new DataTransfer();							// так для IE не будет работать
 		transfer.setData('text/plain',
-			event.target.value.slice(
-				(kwargs || event.target).selectionStart, 
-				event.target.selectionEnd  // or line.slice(1)
-			)
-		);
+			event.target.value.slice(event.target.selectionStart, event.target.selectionEnd  // or line.slice(1)
+		));
 		let clipboardEvent = new ClipboardEvent('paste', { clipboardData: transfer });
 
 		event.target.dispatchEvent(clipboardEvent);
@@ -206,8 +185,14 @@
 		}));
 		if (onfinish && postOptions && postOptions.backoffset !== undefined) onfinish(postOptions);
 	};
+	/**
+	 * 
+	 * @param {*} event 
+	 * @param {Function} callback 
+	 * @param {startLine: Number, endLine: Number} kwargs - позиция начала строки и конца строки 
+	 */
 	const storeAction = function (event, callback, kwargs) {
-			
+
 		// if (!kwargs) kwargs = {
 		// 	// todo default behavior (now is draft!!)
 		// 	startLine: editor.value.lastIndexOf('\n', editor.selectionStart-1),
@@ -246,11 +231,10 @@
 	};
 
 
-	let storage = { undo: undoStorage, redo: redoStorage };
 	const redo = (e) => {
 		let redoState = redoStorage.pop();
 		if (redoState) {
-			undoStorage.push(redoState), redoLog(storage);
+			undoStorage.push(redoState), redoLog();
 
 			actionApply(redoState, 'redo');
 			e.preventDefault();
@@ -262,7 +246,7 @@
 
 		let undoState = undoStorage.pop();
 		if (undoState) {
-			redoStorage.push(undoState), redoLog(storage);
+			redoStorage.push(undoState), redoLog();
 
 			actionApply(undoState, '');
 			e.preventDefault();
@@ -294,15 +278,15 @@
 	  document.querySelector('#replace').onclick = (event) => {					// second example stored by undo-mimic action 
 
 	    editor.selectionStart = 0, editor.selectionEnd = editor.value.length;
-	    storeMultiactions({target: editor}, () => editor.value = '123 ', null, {selectionStart: 0});
+	    storeMultiactions({target: editor}, () => editor.value = '123 ', null);
 	    editor.selectionStart = editor.selectionEnd = editor.value.length, editor.focus();
 	  };  
 
 	}
 
 	window.addEventListener('load', initialize);
-	document.getElementById('undo_btn').onclick = () => undo({shiftKey: false});
-	document.getElementById('redo_btn').onclick = () => undo({shiftKey: true});
+	document.getElementById('undo_btn').onclick = () => {undo({shiftKey: false}); editor.focus();};
+	document.getElementById('redo_btn').onclick = () => { undo({shiftKey: true}); editor.focus();};
 
 }());
 //# sourceMappingURL=undo-mimic.js.map

@@ -33,5 +33,5 @@ function initialize() {
 }
 
 window.addEventListener('load', initialize);
-document.getElementById('undo_btn').onclick = () => undo({shiftKey: false});
-document.getElementById('redo_btn').onclick = () => undo({shiftKey: true});
+document.getElementById('undo_btn').onclick = () => {undo({shiftKey: false}); editor.focus();}
+document.getElementById('redo_btn').onclick = () => { undo({shiftKey: true}); editor.focus();}
