@@ -166,7 +166,7 @@
 
 
 
-	const storeMultiactions = function (event, callback, onfinish) {
+	const storeMultiactions = function (event, callback, onfinish, kwargs) {
 
 		event.target.dispatchEvent(new KeyboardEvent('keydown'));
 
@@ -174,8 +174,11 @@
 
 		let transfer = new DataTransfer();							// так для IE не будет работать
 		transfer.setData('text/plain',
-			event.target.value.slice(event.target.selectionStart, event.target.selectionEnd  // or line.slice(1)
-		));
+			event.target.value.slice(
+				(kwargs || event.target).selectionStart, 
+				event.target.selectionEnd  // or line.slice(1)
+			)
+		);
 		let clipboardEvent = new ClipboardEvent('paste', { clipboardData: transfer });
 
 		event.target.dispatchEvent(clipboardEvent);
@@ -279,7 +282,7 @@
 	  document.querySelector('#replace').onclick = (event) => {					// second example stored by undo-mimic action 
 
 	    editor.selectionStart = 0, editor.selectionEnd = editor.value.length;
-	    storeMultiactions({target: editor}, () => editor.value = '123 ', null);
+	    storeMultiactions({target: editor}, () => editor.value = '123 ', null, {selectionStart: 0});
 	    editor.selectionStart = editor.selectionEnd = editor.value.length, editor.focus();
 	  };  
 

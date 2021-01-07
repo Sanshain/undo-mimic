@@ -1,13 +1,14 @@
 // @ts-nocheck
 
-// import { redoLog } from "./logs";
-var redoLog = (() => { });
+import { redoLog } from "./logs";
+// var redoLog = (() => { });
 
 var editor = document.getElementById('editor') || document.querySelector('textarea'),
 	undoStorage = [],
 	redoStorage = [];
 
 export default function main(target) {
+	if (!debug) redoLog = (() => { });
 	editor = target;
 	return editor;
 }

@@ -7,7 +7,7 @@ import main from 'undo-mimic/initialize';
 function initialize() {
   
   // initialize editor for undo/redo emulator applying:
-  var editor = main(document.querySelector('textarea'));	
+  var editor = main(document.querySelector('textarea'), true);	
   // on ctrl+z keydown event subscribe:
   editor.onkeydown = (event) => { event.code === 'KeyZ' && event.ctrlKey && undo(event) };
 
