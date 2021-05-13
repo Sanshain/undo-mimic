@@ -28,7 +28,8 @@
               })()
           }), 
       {
-          startLine: startLine + 1
+          startLine: startLine + 1,
+          endLine: startLine + 1
       }
   );
 
